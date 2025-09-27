@@ -11,8 +11,8 @@
 		"typecheck": "tsc --noEmit -p tsconfig.app.json",
 		"backend": "cd backend && npm run dev",
 		"backend:setup": "cd backend && node setup.js",
-		"start": "node start-both.js",
-		"heroku-postbuild": "npm run build && cd backend && npm install",
+		"start": "cd backend && npm start",
+		"heroku-postbuild": "npm run build && cd backend && npm install && cp -r ../data . || xcopy /E /I ..\\data .\\data",
 		"heroku-prebuild": "cd backend && npm install"
 	},
 	"dependencies": {

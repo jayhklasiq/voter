@@ -36,8 +36,14 @@ heroku config:set VITE_EMAIL_API_URL=https://your-app-name.herokuapp.com/api/ema
 
 ```bash
 git add .
-git commit -m "Prepare for Heroku deployment"
+git commit -m "Fix Heroku deployment configuration"
 git push heroku main
+```
+
+### 4. Check Logs
+
+```bash
+heroku logs --tail
 ```
 
 ## What Was Fixed

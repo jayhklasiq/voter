@@ -10,7 +10,7 @@ function App() {
 	const [isInitialized, setIsInitialized] = React.useState(false);
 
 	// Admin email list (in production, this should be in a secure config)
-	const adminEmails = ["klasik@byui.edu", "admin@speuniben.com", "election@speuniben.com", "chairman@speuniben.com"];
+	const adminEmails = ["favour.thomas@eng.uniben.edu", "promise.owie@eng.uniben.edu", "osemudiamenmonday2@gmail.com", "klasik@byui.edu"];
 
 	const isAdmin = currentVoter && adminEmails.includes(currentVoter.email.toLowerCase());
 

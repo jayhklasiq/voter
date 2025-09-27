@@ -15,9 +15,8 @@ function App() {
 
 	const isAdmin = currentVoter && adminEmails.includes(currentVoter.email.toLowerCase());
 
-	// Voting deadline: September 27, 2025 at 11:30 AM GMT
-	const votingDeadline = new Date("2025-09-27T11:30:00Z");
-	const isVotingClosed = new Date() > votingDeadline;
+	// Voting is now permanently closed for all users except admins
+	const isVotingClosed = true;
 
 	// Check for existing admin session on app load
 	React.useEffect(() => {

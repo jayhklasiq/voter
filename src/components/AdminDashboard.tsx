@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BarChart3, Users, Vote, TrendingUp, RefreshCw, LogOut, Eye, EyeOff } from "lucide-react";
+import { BarChart3, Users, Vote, TrendingUp, RefreshCw, LogOut, Eye, EyeOff, User } from "lucide-react";
 import { Position, Candidate, Vote as VoteType, VoterVotes } from "../types/election";
 import { voteService } from "../services/voteService";
 
@@ -240,6 +240,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ positions, onLog
 											<div className="flex-1">
 												<div className="flex items-center space-x-3">
 													<div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${index === 0 && candidateResult.votes > 0 ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700"}`}>{index + 1}</div>
+
+													{/* Candidate Photo */}
+													<div className="flex-shrink-0">
+														{candidateResult.candidate.photo && candidateResult.candidate.photo.trim() !== "" ? (
+															<img
+																src={candidateResult.candidate.photo}
+																alt={candidateResult.candidate.full_name}
+																className="w-12 h-12 rounded-full object-cover border-2 border-gray-300"
+																onError={(e) => {
+																	e.currentTarget.style.display = "none";
+																	e.currentTarget.nextElementSibling?.classList.remove("hidden");
+																}}
+															/>
+														) : null}
+														<div className={`${candidateResult.candidate.photo && candidateResult.candidate.photo.trim() !== "" ? "hidden" : ""} w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center`}>
+															<User className="w-6 h-6 text-gray-600" />
+														</div>
+													</div>
+
 													<div>
 														<h3 className="text-lg font-semibold text-gray-900">{candidateResult.candidate.full_name}</h3>
 														<p className="text-sm text-gray-600">

@@ -12,18 +12,13 @@
 		"backend": "cd backend && npm run dev",
 		"backend:setup": "cd backend && node setup.js",
 		"start": "cd backend && npm start",
-		"heroku-postbuild": "npm run build && cd backend && npm install && cp -r ../data . || xcopy /E /I ..\\data .\\data",
-		"heroku-prebuild": "cd backend && npm install"
+		"dev:full": "node start-both.js"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.57.4",
 		"lucide-react": "^0.344.0",
 		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"express": "^4.18.2",
-		"nodemailer": "^6.9.7",
-		"cors": "^2.8.5",
-		"dotenv": "^16.3.1"
+		"react-dom": "^18.3.1"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.9.1",

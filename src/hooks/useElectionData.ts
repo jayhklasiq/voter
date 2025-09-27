@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Position, Voter, Vote, VoteResults, Candidate } from '../types/election';
+import { voteService } from '../services/voteService';
 import candidatesData from '../../data/candidate.json';
 import votersData from '../../data/voters.json';
 
@@ -21,41 +22,94 @@ export const useElectionData = () => {
     // Load voters
     setVoters(votersData as Voter[]);
 
-    // Load existing votes from localStorage
-    const savedVotes = localStorage.getItem('spe-votes');
-    if (savedVotes) {
-      setVotes(JSON.parse(savedVotes));
-    }
+    // Load votes and check vote status
+    const loadVotesAndCheckStatus = async () => {
+      try {
+        const votesData = await voteService.getVotes();
+        setVotes(votesData);
 
-    // Check if current voter has voted
-    const currentVoterEmail = localStorage.getItem('current-voter-email');
-    if (currentVoterEmail && savedVotes) {
-      const existingVotes = JSON.parse(savedVotes);
-      const voterHasVoted = existingVotes.some((vote: Vote) => vote.voterEmail === currentVoterEmail);
-      setHasVoted(voterHasVoted);
-    }
+        // Check if current voter has voted
+        const currentVoterEmail = localStorage.getItem('current-voter-email');
+        if (currentVoterEmail) {
+          const voterHasVoted = await voteService.checkVoteStatus(currentVoterEmail);
+          setHasVoted(voterHasVoted);
+        }
+      } catch (error) {
+        console.error('Error loading votes:', error);
+      }
+    };
+
+    loadVotesAndCheckStatus();
   }, []);
 
-  const authenticateVoter = (email: string, matriculationNumber: string): boolean => {
-    const voter = voters.find(v => 
-      v.email.toLowerCase() === email.toLowerCase() && 
-      v.matriculationNumber.toLowerCase() === matriculationNumber.toLowerCase()
+  const checkEmailExists = (email: string): boolean => {
+    return voters.some(v => 
+      v.email.toLowerCase() === email.toLowerCase()
     );
-    
-    if (voter) {
-      setCurrentVoter(voter);
-      localStorage.setItem('current-voter-email', voter.email);
-      
-      // Check if this voter has already voted
-      const voterHasVoted = votes.some(vote => vote.voterEmail === voter.email);
-      setHasVoted(voterHasVoted);
-      
-      return true;
-    }
-    return false;
   };
 
-  const submitVotes = (selectedVotes: Record<string, string>): boolean => {
+	const authenticateVoter = async (email: string): Promise<boolean> => {
+		const voter = voters.find(v =>
+			v.email.toLowerCase() === email.toLowerCase()
+		);
+
+		if (voter) {
+			setCurrentVoter(voter);
+			localStorage.setItem('current-voter-email', voter.email);
+
+			// Check if this voter has already voted
+			try {
+				const voterHasVoted = await voteService.checkVoteStatus(voter.email);
+				setHasVoted(voterHasVoted);
+			} catch (error) {
+				console.error('Error checking vote status:', error);
+				// Fallback to local check
+				const voterHasVoted = votes.some(vote => vote.voterEmail === voter.email);
+				setHasVoted(voterHasVoted);
+			}
+
+			return true;
+		}
+		return false;
+	};
+
+	const checkAdminSession = (): boolean => {
+		try {
+			const adminSession = localStorage.getItem('admin-session');
+			if (!adminSession) return false;
+
+			const sessionData = JSON.parse(adminSession);
+			const now = Date.now();
+			const sessionExpiry = sessionData.expiresAt;
+
+			// Check if session is still valid (24 hours)
+			if (now < sessionExpiry) {
+				// Session is still valid, restore admin user
+				const adminVoter = voters.find(v => v.email.toLowerCase() === sessionData.email.toLowerCase());
+				if (adminVoter) {
+					setCurrentVoter(adminVoter);
+					return true;
+				}
+			} else {
+				// Session expired, clear it
+				localStorage.removeItem('admin-session');
+			}
+		} catch (error) {
+			console.error('Error checking admin session:', error);
+			localStorage.removeItem('admin-session');
+		}
+		return false;
+	};
+
+	const createAdminSession = (email: string): void => {
+		const sessionData = {
+			email: email,
+			expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours from now
+		};
+		localStorage.setItem('admin-session', JSON.stringify(sessionData));
+	};
+
+  const submitVotes = async (selectedVotes: Record<string, string>): Promise<boolean> => {
     if (!currentVoter || hasVoted) return false;
 
     const newVotes: Vote[] = Object.entries(selectedVotes).map(([position, candidateEmail]) => ({
@@ -65,12 +119,23 @@ export const useElectionData = () => {
       timestamp: new Date().toISOString()
     }));
 
-    const updatedVotes = [...votes, ...newVotes];
-    setVotes(updatedVotes);
-    localStorage.setItem('spe-votes', JSON.stringify(updatedVotes));
-    setHasVoted(true);
-    
-    return true;
+    try {
+      const result = await voteService.submitVotes(newVotes, currentVoter.email);
+      
+      if (result.success) {
+        // Update local state
+        const updatedVotes = [...votes, ...newVotes];
+        setVotes(updatedVotes);
+        setHasVoted(true);
+        return true;
+      } else {
+        console.error('Vote submission failed:', result.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error submitting votes:', error);
+      return false;
+    }
   };
 
   const getResults = (): VoteResults[] => {
@@ -99,6 +164,7 @@ export const useElectionData = () => {
     setCurrentVoter(null);
     setHasVoted(false);
     localStorage.removeItem('current-voter-email');
+    localStorage.removeItem('admin-session');
   };
 
   return {
@@ -107,9 +173,12 @@ export const useElectionData = () => {
     votes,
     currentVoter,
     hasVoted,
+    checkEmailExists,
     authenticateVoter,
     submitVotes,
     getResults,
-    logout
+    logout,
+    checkAdminSession,
+    createAdminSession
   };
 };

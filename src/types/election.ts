@@ -22,11 +22,29 @@ export interface Voter {
   speNumber: string;
 }
 
+export interface OTPData {
+  email: string;
+  otp: string;
+  expiresAt: number;
+}
+
 export interface Vote {
   position: string;
   candidateEmail: string;
   voterEmail: string;
   timestamp: string;
+}
+
+export interface VoteEntry {
+  position: string;
+  candidateEmail: string;
+  id: string;
+}
+
+export interface VoterVotes {
+  voterEmail: string;
+  timestamp: string;
+  votes: VoteEntry[];
 }
 
 export interface VoteResults {

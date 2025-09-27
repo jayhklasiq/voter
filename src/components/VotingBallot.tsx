@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Vote, CheckCircle, LogOut } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Vote, CheckCircle, LogOut, Clock } from "lucide-react";
 import { Position, Voter } from "../types/election";
 import { CandidateCard } from "./CandidateCard";
 
@@ -14,6 +14,44 @@ export const VotingBallot: React.FC<VotingBallotProps> = ({ positions, currentVo
 	const [selectedVotes, setSelectedVotes] = useState<Record<string, string>>({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showConfirmation, setShowConfirmation] = useState(false);
+	const [timeRemaining, setTimeRemaining] = useState<number>(0);
+
+	// Voting deadline: September 27, 2025 at 11:30 AM GMT
+	const votingDeadline = new Date("2025-09-27T11:30:00Z");
+
+	useEffect(() => {
+		const updateCountdown = () => {
+			const now = new Date();
+			const remaining = votingDeadline.getTime() - now.getTime();
+			setTimeRemaining(Math.max(0, remaining));
+		};
+
+		updateCountdown();
+		const interval = setInterval(updateCountdown, 1000);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	const formatTimeRemaining = () => {
+		if (timeRemaining <= 0) {
+			return "Voting has closed";
+		}
+
+		const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+		const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+		const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+		if (days > 0) {
+			return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+		} else if (hours > 0) {
+			return `${hours}h ${minutes}m ${seconds}s`;
+		} else if (minutes > 0) {
+			return `${minutes}m ${seconds}s`;
+		} else {
+			return `${seconds}s`;
+		}
+	};
 
 	const handleCandidateSelect = (position: string, candidateEmail: string) => {
 		setSelectedVotes((prev) => ({
@@ -70,6 +108,10 @@ export const VotingBallot: React.FC<VotingBallotProps> = ({ positions, currentVo
 						<div>
 							<h1 className="text-2xl font-bold text-gray-900">SPE UNIBEN Chapter Elections</h1>
 							<p className="text-gray-600">Welcome, {currentVoter.fullName}</p>
+							<div className="flex items-center mt-1 text-sm text-orange-600">
+								<Clock className="w-4 h-4 mr-1" />
+								<span className="font-medium">Voting closes: {formatTimeRemaining()}</span>
+							</div>
 						</div>
 						<button onClick={onLogout} className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors">
 							<LogOut className="w-5 h-5 mr-2" />

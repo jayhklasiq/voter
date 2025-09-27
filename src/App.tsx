@@ -3,6 +3,7 @@ import { LoginForm } from "./components/LoginForm";
 import { VotingBallot } from "./components/VotingBallot";
 import { VoteSuccess } from "./components/VoteSuccess";
 import { AdminDashboard } from "./components/AdminDashboard";
+import { VotingClosed } from "./components/VotingClosed";
 import { useElectionData } from "./hooks/useElectionData";
 
 function App() {
@@ -13,6 +14,10 @@ function App() {
 	const adminEmails = ["favour.thomas@eng.uniben.edu", "promise.owie@eng.uniben.edu", "osemudiamenmonday2@gmail.com", "klasik@byui.edu"];
 
 	const isAdmin = currentVoter && adminEmails.includes(currentVoter.email.toLowerCase());
+
+	// Voting deadline: September 27, 2025 at 11:30 AM GMT
+	const votingDeadline = new Date("2025-09-27T11:30:00Z");
+	const isVotingClosed = new Date() > votingDeadline;
 
 	// Check for existing admin session on app load
 	React.useEffect(() => {
@@ -49,6 +54,11 @@ function App() {
 	// Show admin dashboard if user is admin (admins don't vote, they just view results)
 	if (isAdmin) {
 		return <AdminDashboard positions={positions} onLogout={logout} />;
+	}
+
+	// Show voting closed page if voting deadline has passed
+	if (isVotingClosed) {
+		return <VotingClosed currentVoter={currentVoter} onLogout={logout} />;
 	}
 
 	// Show success page if user has already voted

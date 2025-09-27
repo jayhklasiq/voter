@@ -1,5 +1,23 @@
 [
 	{
+		"email": "thomasfavour263@gmail.com",
+		"fullName": "Admin User",
+		"matriculationNumber": "ADMIN001",
+		"level": "500"
+	},
+	{
+		"email": "owieosayimwense@gmail.com",
+		"fullName": "Admin User",
+		"matriculationNumber": "ADMIN001",
+		"level": "500"
+	},
+	{
+		"email": "osemudiamenmonday2@gmail.com",
+		"fullName": "Admin User",
+		"matriculationNumber": "ADMIN001",
+		"level": "500"
+	},
+	{
 		"email": "klasik@byui.edu",
 		"fullName": "Admin User",
 		"matriculationNumber": "ADMIN001",

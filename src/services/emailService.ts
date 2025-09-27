@@ -1,10 +1,8 @@
 /**
  * Email Service for sending OTPs
  * 
- * NOTE: This is a frontend mock service. For production, you need a backend API
- * to handle real email sending using nodemailer or other email services.
- * 
- * Frontend cannot directly use nodemailer due to browser security restrictions.
+ * This service attempts to send emails via a backend API first,
+ * then falls back to a mock service for development.
  */
 
 interface EmailOptions {
@@ -32,7 +30,8 @@ class EmailService {
   private async checkBackendService(): Promise<boolean> {
     try {
       // Try to reach a backend email API endpoint
-      const response = await fetch('http://localhost:3001/api/email/health', {
+      const emailApiUrl = import.meta.env.VITE_EMAIL_API_URL || 'http://localhost:3001/api/email';
+      const response = await fetch(`${emailApiUrl}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +61,8 @@ class EmailService {
       if (backendAvailable) {
         // Send via backend API
         try {
-          const response = await fetch('http://localhost:3001/api/email/send', {
+          const emailApiUrl = import.meta.env.VITE_EMAIL_API_URL || 'http://localhost:3001/api/email';
+          const response = await fetch(`${emailApiUrl}/send`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -76,31 +76,20 @@ class EmailService {
           });
 
           if (response.ok) {
-            console.log('📧 Email sent successfully via backend API');
             return true;
           } else {
-            console.error('❌ Backend email service error:', response.statusText);
             return false;
           }
-        } catch (error) {
-          console.error('❌ Backend email service error:', error);
+        } catch {
           return false;
         }
       } else {
         // Use mock service for development
-        console.log('📧 Mock Email Service - Sending OTP Email:');
-        console.log('To:', emailOptions.to);
-        console.log('Subject:', emailOptions.subject);
-        console.log('OTP Code:', otp);
-        console.log('---');
-        console.log('💡 To enable real emails, set up a backend API with email service');
-        
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         return true;
       }
-    } catch (error) {
-      console.error('❌ Email Service Error:', error);
+    } catch {
       return false;
     }
   }
@@ -166,25 +155,6 @@ This is an automated message from SPE UNIBEN Elections System
     `.trim();
   }
 
-  /**
-   * Send a test email (for development)
-   */
-  async sendTestEmail(email: string): Promise<boolean> {
-    try {
-      const emailOptions: EmailOptions = {
-        to: email,
-        subject: 'SPE UNIBEN Elections - Test Email',
-        html: '<h1>Test Email</h1><p>This is a test email from SPE UNIBEN Elections System.</p>',
-        text: 'Test Email - This is a test email from SPE UNIBEN Elections System.'
-      };
-
-      console.log('📧 Test Email Sent:', emailOptions);
-      return true;
-    } catch (error) {
-      console.error('Test Email Error:', error);
-      return false;
-    }
-  }
 }
 
 export default EmailService;

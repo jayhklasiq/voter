@@ -16,7 +16,8 @@
 		}
 	],
 	"env": {
-		"VITE_API_URL": "https://your-backend-url.herokuapp.com"
+		"VITE_API_URL": "https://your-backend-url.herokuapp.com/api/votes",
+		"VITE_EMAIL_API_URL": "https://your-backend-url.herokuapp.com/api/email"
 	},
 	"functions": {
 		"backend/api/**/*.js": {

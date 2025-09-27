@@ -29,14 +29,13 @@ interface VoteStats {
 }
 
 class VoteService {
-  private baseUrl = 'http://localhost:3001/api/votes';
+  private baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/votes';
 
   async checkBackendService(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/health`);
       return response.ok;
     } catch (error) {
-      console.log('Backend vote service not available, using localStorage fallback');
       return false;
     }
   }
@@ -61,19 +60,15 @@ class VoteService {
         const result = await response.json();
         
         if (result.success) {
-          console.log('✅ Votes submitted successfully via backend API');
           return { success: true, message: result.message };
         } else {
-          console.error('❌ Backend vote submission error:', result.error);
           return { success: false, message: result.error };
         }
       } else {
         // Fallback to localStorage
-        console.log('📝 Using localStorage fallback for vote storage');
         return this.submitVotesToLocalStorage(votes, voterEmail);
       }
     } catch (error) {
-      console.error('❌ Vote submission error:', error);
       // Fallback to localStorage
       return this.submitVotesToLocalStorage(votes, voterEmail);
     }
@@ -125,7 +120,6 @@ class VoteService {
         if (result.success) {
           return result.data.hasVoted;
         } else {
-          console.error('❌ Backend vote check error:', result.error);
           return this.checkVoteStatusFromLocalStorage(voterEmail);
         }
       } else {
@@ -133,7 +127,6 @@ class VoteService {
         return this.checkVoteStatusFromLocalStorage(voterEmail);
       }
     } catch (error) {
-      console.error('❌ Vote status check error:', error);
       return this.checkVoteStatusFromLocalStorage(voterEmail);
     }
   }
@@ -155,7 +148,6 @@ class VoteService {
         if (result.success) {
           return result.data;
         } else {
-          console.error('❌ Backend votes fetch error:', result.error);
           return this.getVotesFromLocalStorage();
         }
       } else {
@@ -163,7 +155,6 @@ class VoteService {
         return this.getVotesFromLocalStorage();
       }
     } catch (error) {
-      console.error('❌ Votes fetch error:', error);
       return this.getVotesFromLocalStorage();
     }
   }
@@ -173,7 +164,6 @@ class VoteService {
       const savedVotes = localStorage.getItem('spe-votes');
       return savedVotes ? JSON.parse(savedVotes) : [];
     } catch (error) {
-      console.error('❌ localStorage votes fetch error:', error);
       return [];
     }
   }
@@ -190,7 +180,6 @@ class VoteService {
         if (result.success) {
           return result.data;
         } else {
-          console.error('❌ Backend vote stats error:', result.error);
           return null;
         }
       } else {
@@ -204,7 +193,6 @@ class VoteService {
         };
       }
     } catch (error) {
-      console.error('❌ Vote stats error:', error);
       return null;
     }
   }

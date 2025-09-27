@@ -35,7 +35,7 @@ export const useElectionData = () => {
           setHasVoted(voterHasVoted);
         }
       } catch (error) {
-        console.error('Error loading votes:', error);
+        // Silently handle error
       }
     };
 
@@ -62,7 +62,6 @@ export const useElectionData = () => {
 				const voterHasVoted = await voteService.checkVoteStatus(voter.email);
 				setHasVoted(voterHasVoted);
 			} catch (error) {
-				console.error('Error checking vote status:', error);
 				// Fallback to local check
 				const voterHasVoted = votes.some(vote => vote.voterEmail === voter.email);
 				setHasVoted(voterHasVoted);
@@ -95,7 +94,6 @@ export const useElectionData = () => {
 				localStorage.removeItem('admin-session');
 			}
 		} catch (error) {
-			console.error('Error checking admin session:', error);
 			localStorage.removeItem('admin-session');
 		}
 		return false;
@@ -129,11 +127,9 @@ export const useElectionData = () => {
         setHasVoted(true);
         return true;
       } else {
-        console.error('Vote submission failed:', result.message);
         return false;
       }
     } catch (error) {
-      console.error('Error submitting votes:', error);
       return false;
     }
   };

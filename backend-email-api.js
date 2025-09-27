@@ -47,18 +47,15 @@ app.post('/api/email/send', async (req, res) => {
       text
     });
 
-    console.log('📧 Email sent successfully:', info.messageId);
     res.json({ success: true, messageId: info.messageId });
   } catch (error) {
-    console.error('❌ Email sending error:', error);
     res.status(500).json({ error: 'Failed to send email' });
   }
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Email API server running on port ${PORT}`);
-  console.log(`📧 Health check: http://localhost:${PORT}/api/email/health`);
+  console.log(`Email API server running on port ${PORT}`);
 });
 
 // Package.json for backend:

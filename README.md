@@ -82,6 +82,47 @@ For production, you can replace the backend email service with:
 - Mailgun
 - Custom SMTP server
 
+## Environment Configuration
+
+The application uses environment variables to configure backend API URLs for different environments.
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```bash
+# Development (default)
+VITE_API_URL=http://localhost:3001/api/votes
+VITE_EMAIL_API_URL=http://localhost:3001/api/email
+
+# Production (update with your deployed backend URLs)
+# VITE_API_URL=https://your-backend.herokuapp.com/api/votes
+# VITE_EMAIL_API_URL=https://your-backend.herokuapp.com/api/email
+```
+
+### Backend API Endpoints
+
+The frontend expects a backend API with the following endpoints:
+
+#### Vote API (`/api/votes`)
+
+- `GET /health` - Health check
+- `GET /` - Get all votes
+- `POST /` - Submit votes
+- `GET /check/:email` - Check if voter has voted
+- `GET /stats` - Get vote statistics
+
+#### Email API (`/api/email`)
+
+- `GET /health` - Health check
+- `POST /send` - Send OTP email
+
+### Production Deployment
+
+1. **Frontend**: Deploy to Vercel with environment variables set in Vercel dashboard
+2. **Backend**: Deploy to Heroku, Railway, or similar platform
+3. **Update Environment Variables**: Set production backend URLs in your deployment platform
+
 ## Security Features
 
 - OTP expires in 5 minutes

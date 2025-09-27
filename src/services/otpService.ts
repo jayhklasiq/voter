@@ -32,7 +32,6 @@ class OTPService {
     try {
       return await this.emailService.sendOTPEmail(email, otp);
     } catch (error) {
-      console.error('Error sending OTP email:', error);
       return false;
     }
   }
@@ -71,7 +70,6 @@ class OTPService {
         };
       }
     } catch (error) {
-      console.error('Error sending OTP:', error);
       return {
         success: false,
         message: 'An error occurred while sending OTP. Please try again.'
@@ -118,7 +116,6 @@ class OTPService {
         };
       }
     } catch (error) {
-      console.error('Error verifying OTP:', error);
       return {
         success: false,
         message: 'An error occurred while verifying OTP. Please try again.'

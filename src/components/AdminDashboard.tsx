@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BarChart3, Users, Vote, TrendingUp, RefreshCw, LogOut, Eye, EyeOff } from "lucide-react";
 import { Position, Candidate, Vote as VoteType, VoterVotes } from "../types/election";
-import { voteService, VoteStats } from "../services/voteService";
+import { voteService } from "../services/voteService";
 
 interface AdminDashboardProps {
 	positions: Position[];
@@ -20,7 +20,6 @@ interface PositionResults {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ positions, onLogout }) => {
 	const [votes, setVotes] = useState<VoterVotes[]>([]);
-	const [voteStats, setVoteStats] = useState<VoteStats | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [showVoterDetails, setShowVoterDetails] = useState(false);
 	const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -29,9 +28,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ positions, onLog
 	const loadVoteData = async () => {
 		setIsLoading(true);
 		try {
-			const [votesData, statsData] = await Promise.all([voteService.getVotes(), voteService.getVoteStats()]);
+			const votesData = await voteService.getVotes();
 			setVotes(votesData);
-			setVoteStats(statsData);
 			setLastUpdated(new Date());
 		} catch (error) {
 			console.error("Error loading vote data:", error);
@@ -288,7 +286,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ positions, onLog
 
 					{showVoterDetails && (
 						<div className="space-y-4">
-							{getVoterDetails().map((voter, index) => (
+							{getVoterDetails().map((voter) => (
 								<div key={voter.email} className="border border-gray-200 rounded-lg p-4">
 									<div className="flex justify-between items-center">
 										<div>
